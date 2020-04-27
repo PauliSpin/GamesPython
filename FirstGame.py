@@ -30,7 +30,7 @@ class player(object):
         self.jumpCount = 10
         self.left = False
         self.right = False
-        self.walkCount = 0
+        self.walkCount = 0  # Keeps track of which character image is being displayed
         self.standing = True
 
     def draw(self, win):
@@ -59,6 +59,49 @@ class player(object):
     pygame.display.update()
 
 
+class enemy(object):
+    walkRight = [pygame.image.load('pics/R1E.png'), pygame.image.load('pics/R2E.png'), pygame.image.load('pics/R3E.png'), pygame.image.load('pics/R4E.png'), pygame.image.load('pics/R5E.png'), pygame.image.load(
+        'pics/R6E.png'), pygame.image.load('pics/R7E.png'), pygame.image.load('pics/R8E.png'), pygame.image.load('pics/R9E.png'), pygame.image.load('pics/R10E.png'), pygame.image.load('pics/R11E.png')]
+    walkLeft = [pygame.image.load('pics/L1E.png'), pygame.image.load('pics/L2E.png'), pygame.image.load('pics/L3E.png'), pygame.image.load('pics/L4E.png'), pygame.image.load('pics/L5E.png'), pygame.image.load(
+        'pics/L6E.png'), pygame.image.load('pics/L7E.png'), pygame.image.load('pics/L8E.png'), pygame.image.load('pics/L9E.png'), pygame.image.load('pics/L10E.png'), pygame.image.load('pics/L11E.png')]
+
+    def __init__(self, x, y, width, height, end):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.end = end
+        self.path = [self.x, self.end]
+        self.walkCount = 0
+        self.vel = 3
+
+    def draw(self, win):
+        self.move()
+        # There are 11 images in the enemy not 9 as for the man
+        if self.walkCount + 1 >= 33:
+            self.walkCount = 0
+        if self.vel > 0:
+            win.blit(self.walkRight[self.walkCount//3], (self.x, self.y))
+            self.walkCount += 1
+        else:
+            win.blit(self.walkLeft[self.walkCount//3], (self.x, self.y))
+            self.walkCount += 1
+
+    def move(self):
+        if self.vel > 0:
+            if self.x + self.vel < self.path[1]:
+                self.x += self.vel
+            else:
+                self.vel = self.vel * -1
+                self.walkCount = 0
+        else:
+            if self.x - self.vel > self.path[0]:
+                self.x += self.vel
+            else:
+                self.vel = self.vel * -1
+                self.walkCount = 0
+
+
 class projectile(object):
     def __init__(self, x, y, radius, color, facing):
         self.x = x
@@ -75,6 +118,7 @@ class projectile(object):
 def redrawGameWindow():
     win.blit(bg, (0, 0))
     man.draw(win)
+    goblin.draw(win)
     for bullet in bullets:
         bullet.draw(win)
     pygame.display.update()
@@ -83,6 +127,7 @@ def redrawGameWindow():
 # main loop
 
 man = player(300, 410, 64, 64)
+goblin = enemy(100, 410, 64, 64, 450)
 bullets = []
 run = True
 while run:
